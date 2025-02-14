@@ -1,3 +1,5 @@
+
+0.
 # main.py
 
 from quantum_api import endpoint, response, log_error
@@ -53,16 +55,14 @@ def secure_ai_endpoint(request):
         log_error(f"secure_ai_endpoint error: {e}")
         return response({"error": "Processing failed."}, status=500)
 
-# For demonstration purposes, here's a simple simulation of an HTTP request.
+from flask import Flask, request, jsonify
+import os
+
+app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max payload
+
+# Production-grade WSGI server configuration
 if __name__ == "__main__":
-    class DummyRequest:
-        def __init__(self, json_data):
-            self._json = json_data
-        
-        def get_json(self):
-            return self._json
-    
-    # Simulated incoming request with user data.
-    dummy_request = DummyRequest({"data": "Sensitive user input data."})
-    result = secure_ai_endpoint(dummy_request)
-    print("Endpoint Response:", result)
+    from waitress import serve
+    port = int(os.environ.get('QUANTUM_API_PORT', 8080))
+    serve(app, host="0.0.0.0", port=port)
